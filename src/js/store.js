@@ -2,8 +2,6 @@
 import {actionSplitterMiddleware} from "./middleware/core/actionSplitter";
 import {apiMiddleware} from "./middleware/core/api";
 import {loggerMiddleware} from "./middleware/core/logger";
-import {googleAPIMiddleware} from "./middleware/feature/googleAPI";
-import {googleTasksMiddleware} from "./middleware/feature/googleTasks";
 import {MyBehaviorSubject} from "./rx/myBehaviorSubject";
 
 const coreMiddleware = [
@@ -13,8 +11,7 @@ const coreMiddleware = [
 ];
 
 const featureMiddleware = [
-    googleAPIMiddleware,
-    googleTasksMiddleware
+
 ];
 
 const validateAction = (action) => {

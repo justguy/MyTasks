@@ -23,3 +23,6 @@ export const updateGoogleTask = ({ task }) => ({
         feature: GOOGLE_TASKS
     }
 });
+
+// https://console.developers.google.com/apis/credentials?project=capable-argon-211813
+// https://developers.google.com/tasks/quickstart/js#step_1_turn_on_the
