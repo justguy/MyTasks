@@ -1,21 +1,5 @@
 // create the core middleware array
-import {actionSplitterMiddleware} from "./middleware/core/actionSplitter";
-import {apiMiddleware} from "./middleware/core/api";
-import {loggerMiddleware} from "./middleware/core/logger";
-import {googleAPIMiddleware} from "./middleware/feature/googleAPI";
-import {googleTasksMiddleware} from "./middleware/feature/googleTasks";
 import {MyBehaviorSubject} from "./rx/myBehaviorSubject";
-
-const coreMiddleware = [
-    actionSplitterMiddleware,
-    apiMiddleware,
-    loggerMiddleware
-];
-
-const featureMiddleware = [
-    googleAPIMiddleware,
-    googleTasksMiddleware
-];
 
 const validateAction = (action) => {
     if (!action || typeof action !== 'object' || Array.isArray(action)) {
@@ -33,21 +17,44 @@ const validateReducers = (reducers) => {
     }
 };
 
-const createStore = (reducers, initialState) => {
+export const createStore = (reducers, middlewares, initialState) => {
+    // if the reducers are invalid, stop now
     validateReducers(reducers);
 
+    // create the state
     let state = new MyBehaviorSubject(initialState);
 
+    // create all store methods
+    const getState = () => state.getValue();
+    const subscribe = (observer) => state.subscribe(observer);
+    const undo = () => state.undo();
+
+    // set the default dispatcher without middleware
+    const dispatcher = (action) => {
+        validateAction(action);
+
+        let stateValue = reducers.reduce((s, reducer) => reducer(s, action), state.getValue());
+
+        state.next(stateValue);
+    };
+
+    // apply middleware and replace the dispatcher
+    const chain = middlewares.map(middleware => middleware(middlewareAPI));
+    // wrap the dispatcher with the reducers and replace the dispatch signature
+    const dispatch = (action) => {
+        // define the payload and chain middlewares (taken from Redux)
+        const middlewareAPI = {
+            getState,
+            dispatch: (...args) => dispatcher(...args)
+        };
+
+        return middlewares.reduce((s, middleware) => reducer(s, action), state.getValue());
+    };
+
     return {
-        dispatch: (action) => {
-            validateAction(action);
-
-            let newState = reducers.reduce();
-
-            state.next(newState);
-        },
-        getState: () => state.getValue(),
-        subscribe: (observer) = state.subscribe,
-        undo: () => state.undo
+        dispatch,
+        getState,
+        subscribe,
+        undo
     }
 };

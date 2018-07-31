@@ -1,0 +1,29 @@
+{
+  "tasks": [
+    {
+      "id": 0,
+      "title": "Feed cat",
+      "completed": true
+    },
+    {
+      "id": 1,
+      "title": "Pet cat",
+      "completed": false
+    },
+    {
+      "id": 2,
+      "title": "Talk to cat",
+      "completed": true
+    },
+    {
+      "id": 3,
+      "title": "Photograph cat",
+      "completed": false
+    },
+    {
+      "id": 4,
+      "title": "Take nap with cat",
+      "completed": false
+    }
+  ]
+}

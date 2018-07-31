@@ -1,17 +1,26 @@
 'use strict';
 
-import { Dispatcher } from './dispatcher';
-import { TodoStore } from './todoStoreRx';
-import { TodoActions } from './todoActions';
+import {createStore} from "./store";
+import {tasksReducer} from "./reducers/tasks.reducer";
+import {actionSplitterMiddleware} from "./middleware/core/actionSplitter";
+import {loggerMiddleware} from "./middleware/core/logger";
+import {apiMiddleware} from "./middleware/core/api";
+import {tasksMiddleware} from "./middleware/feature/tasks";
+import {fetchTasks} from "./actions/tasks";
 
-function render() {
-    let dispatcher = new Dispatcher();
-    let todoStore = new TodoStore(dispatcher);
-    let todoActions = new TodoActions(dispatcher);
+const middlewares = [
+    actionSplitterMiddleware,
+    apiMiddleware,
+    loggerMiddleware,
+    tasksMiddleware
+];
 
-    dispatcher.register(function (payload) {
-        console.log("ACTION: " + JSON.stringify(payload))
-    });
+const reducers = [
+    tasksReducer
+];
+
+const render = () => {
+    const store = createStore(reducers, middlewares, []);
 
     $(document).ready(function () {
         let todoForm = $('#appRx > form');
@@ -35,14 +44,14 @@ function render() {
         let todoList = $('<ul>');
         todoList.appendTo($('#appRx'));
 
-        todoStore.subscribe((todos) => {
+        store.subscribe((todos) => {
             todoList.empty();
             $.each(todos, function (id, todo) {
                 todoList.append(todoTemplate(todo))
             })
         });
 
-        todoStore.subscribe((todos) => {
+        store.subscribe((todos) => {
             todoCounter.text(Object.keys(todos).length);
         });
 
@@ -58,7 +67,7 @@ function render() {
             todoActions.removeTodo(id)
         });
 
-        todoActions.listTodos(); // seed data
+        store.dispatch(fetchTasks()); // seed data
     });
 
     function todoTemplate(todo) {
@@ -80,10 +89,8 @@ function render() {
         //console.log("GENERATED HTML", html)
         return html
     }
-}
-
-const SingleApp = {
-    render: render
 };
 
-export { SingleApp };
+export const TasksApp = {
+    render
+};
