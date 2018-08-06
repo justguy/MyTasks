@@ -28,28 +28,31 @@ export const createStore = (reducers, middlewares, initialState) => {
     const getState = () => state.getValue();
     const subscribe = (observer) => state.subscribe(observer);
     const undo = () => state.undo();
+    let dispatch = null;
 
     // set the default dispatcher without middleware
-    const dispatcher = (action) => {
+    let dispatcher = (action) => {
         validateAction(action);
 
-        let stateValue = reducers.reduce((s, reducer) => reducer(s, action), state.getValue());
+        let stateValue = reducers.reduce((state, reducer) => reducer(state, action), state.getValue());
 
         state.next(stateValue);
     };
 
-    // apply middleware and replace the dispatcher
-    const chain = middlewares.map(middleware => middleware(middlewareAPI));
-    // wrap the dispatcher with the reducers and replace the dispatch signature
-    const dispatch = (action) => {
-        // define the payload and chain middlewares (taken from Redux)
+    // if middlewares were provided, wrap the dispatch
+    if (middlewares && middlewares.length) {
         const middlewareAPI = {
             getState,
-            dispatch: (...args) => dispatcher(...args)
+            dispatch: (...args) => dispatch(...args)
         };
 
-        return middlewares.reduce((s, middleware) => reducer(s, action), state.getValue());
-    };
+        // curry to chain the middlewares
+        const middlewareChain = middlewares.map(middleware => middleware(middlewareAPI));
+        // wrap the dispatcher with the reducers and replace the dispatch signature
+        dispatch = middlewareChain.reduce((a, b) => (...args) => a(b(...args)))(dispatcher);
+    } else {
+        dispatch = dispatcher;
+    }
 
     return {
         dispatch,

@@ -8,11 +8,12 @@ import {apiMiddleware} from "./middleware/core/api";
 import {tasksMiddleware} from "./middleware/feature/tasks";
 import {fetchTasks} from "./actions/tasks";
 
+// not the order of middlewares
 const middlewares = [
-    actionSplitterMiddleware,
-    apiMiddleware,
-    loggerMiddleware,
-    tasksMiddleware
+    actionSplitterMiddleware, // first: split multiple actions
+    tasksMiddleware, // second: handle feature actions
+    apiMiddleware, // third: handle API
+    loggerMiddleware // log everything
 ];
 
 const reducers = [
@@ -57,7 +58,7 @@ const render = () => {
 
         todoList.on('click', 'span.toggle', function (e) {
             let id = parseInt($(e.target).parents('li').attr('rel'), 10);
-            let todo = todoStore.getTodo(id);
+            let todo = store.getTodo(id);
             todoActions.updateTodo(id, {completed: !todo.completed})
         });
 

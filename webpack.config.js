@@ -1,6 +1,7 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin'); // Require  html-webpack-plugin plugin
 const webpack = require('webpack');
-const CopyWebpackPlugin = require('copy-webpack-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const express = require('express');
 
 module.exports = {
     entry: __dirname + "/src/js/app.js", // webpack entry point. Module to start building dependency graph
@@ -70,6 +71,10 @@ module.exports = {
             from: 'src/img/**.*',
             to: 'dest/img'
         }]),
+        new CopyWebpackPlugin([{
+            from: 'static',
+            to: 'static/'
+        }]),
         new webpack.ProvidePlugin({
             $: "jquery",
             jQuery: "jquery",
@@ -92,5 +97,9 @@ module.exports = {
     devServer: {  // configuration for webpack-dev-server
         contentBase: './src/js',  //source of static assets
         port: 8000, // port to run dev-server
+        setup(app) {
+            app.use('./src/js', express.static('/static/'))
+        }
+
     }
 };

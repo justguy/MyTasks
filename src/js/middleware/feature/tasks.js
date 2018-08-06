@@ -1,7 +1,7 @@
 import {TASKS, FETCH_TASKS, setTasks} from "../../actions/tasks";
 import {API_ERROR, API_SUCCESS, apiRequest} from "../../actions/api";
 
-const TASKS_URL = 'tasks.json';
+const TASKS_URL = 'static/tasks.json';
 
 export const tasksMiddleware = () => (next) => (action) => {
     next(action);
