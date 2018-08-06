@@ -1,4 +1,4 @@
-const HtmlWebpackPlugin = require('html-webpack-plugin'); // Require  html-webpack-plugin plugin
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const express = require('express');
@@ -16,10 +16,13 @@ module.exports = {
         rules: [
             {
                 test: /\.js$/,
-                use: 'babel-loader',
+                loader: 'babel-loader',
                 exclude: [
                     /node_modules/
-                ]
+                ],
+                query: {
+                    presets:[ 'es2015', 'stage-3' ]
+                }
             },
             {
                 test: /\.css$/,
@@ -71,7 +74,7 @@ module.exports = {
             from: 'src/img/**.*',
             to: 'dest/img'
         }]),
-        new CopyWebpackPlugin([{
+        new CopyWebpackPlugin([{ 
             from: 'static',
             to: 'static/'
         }]),
@@ -98,7 +101,7 @@ module.exports = {
         contentBase: './src/js',  //source of static assets
         port: 8000, // port to run dev-server
         setup(app) {
-            app.use('./src/js', express.static('/static/'))
+            app.use('./static/', express.static('/static/'))
         }
 
     }

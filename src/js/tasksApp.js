@@ -6,7 +6,7 @@ import {actionSplitterMiddleware} from "./middleware/core/actionSplitter";
 import {loggerMiddleware} from "./middleware/core/logger";
 import {apiMiddleware} from "./middleware/core/api";
 import {tasksMiddleware} from "./middleware/feature/tasks";
-import {fetchTasks} from "./actions/tasks";
+import {fetchTasks, updateTask, removeTask} from "./actions/tasks";
 
 // not the order of middlewares
 const middlewares = [
@@ -27,17 +27,17 @@ const render = () => {
         let todoForm = $('#appRx > form');
         todoForm.submit(function (e) {
             e.preventDefault();
-            todoActions.createTodo({
+            store.dispath(updateTask({
                 title: todoForm.find('input').val(),
                 completed: false
-            });
+            }));
             todoForm.get(0).reset();
 
             return false;
         });
 
         $('.btn-undo').click(() => {
-            todoStore.undo();
+            store.undo();
         });
 
         let todoCounter = $('.todo-counter');
@@ -59,13 +59,18 @@ const render = () => {
         todoList.on('click', 'span.toggle', function (e) {
             let id = parseInt($(e.target).parents('li').attr('rel'), 10);
             let todo = store.getTodo(id);
-            todoActions.updateTodo(id, {completed: !todo.completed})
+            store.dispath(updateTask({
+                id,
+                completed: !todo.completed
+            }));
         });
 
         todoList.on('click', 'a.remove', function (e) {
             e.preventDefault();
             let id = parseInt($(e.target).parents('li').attr('rel'), 10);
-            todoActions.removeTodo(id)
+            store.dispatch(removeTask({
+                id
+            }));
         });
 
         store.dispatch(fetchTasks()); // seed data
