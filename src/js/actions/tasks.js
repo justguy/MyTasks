@@ -19,13 +19,13 @@ export const setTasks = ({tasks}) => ({
     meta: {feature: TASKS}
 });
 
-export const updateTask = ({task}) => ({
+export const updateTask = (task) => ({
     type: UPDATE_TASK,
     payload: task,
     meta: {feature: TASKS}
 });
 
-export const removeTask = ({id}) => ({
+export const removeTask = (id) => ({
     type: REMOVE_TASK,
     payload: id,
     meta: {feature: TASKS}

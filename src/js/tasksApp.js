@@ -7,6 +7,7 @@ import {loggerMiddleware} from "./middleware/core/logger";
 import {apiMiddleware} from "./middleware/core/api";
 import {tasksMiddleware} from "./middleware/feature/tasks";
 import {fetchTasks, updateTask, removeTask} from "./actions/tasks";
+import * as taskSelectors from './selectors/tasks';
 
 // not the order of middlewares
 const middlewares = [
@@ -21,7 +22,7 @@ const reducers = [
 ];
 
 const render = () => {
-    const store = createStore(reducers, middlewares, []);
+    const store = createStore(reducers, middlewares, [], taskSelectors);
 
     $(document).ready(function () {
         let todoForm = $('#appRx > form');
@@ -58,10 +59,10 @@ const render = () => {
 
         todoList.on('click', 'span.toggle', function (e) {
             let id = parseInt($(e.target).parents('li').attr('rel'), 10);
-            let todo = store.getTodo(id);
-            store.dispath(updateTask({
+            let task = store.select.task(id);
+            store.dispatch(updateTask({
                 id,
-                completed: !todo.completed
+                completed: !task.completed
             }));
         });
 

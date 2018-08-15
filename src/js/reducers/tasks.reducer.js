@@ -8,9 +8,11 @@ export const tasksReducer = (tasks = initialState, action) => {
         case SET_TASKS:
             return action.payload;
         case UPDATE_TASK:
-            return Object.assign({}, tasks[action.payload.id], action.payload);
+            // update in 2 steps - task and then state
+            let updatedTask = Object.assign({}, tasks[action.payload.id], action.payload);
+            return Object.assign([], tasks, {[action.payload.id]: updatedTask});
         case REMOVE_TASK:
-            return utils.omit(action.payload, tasks);
+            return utils.omit(action.payload.id, tasks);
         default:
             return tasks;
     }

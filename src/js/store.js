@@ -17,12 +17,13 @@ const validateReducers = (reducers) => {
     }
 };
 
-export const createStore = (reducers, middlewares, initialState) => {
+export const createStore = (reducers, middlewares, initialState, selectors) => {
     // if the reducers are invalid, stop now
     validateReducers(reducers);
 
     // create the state
     let state = new MyBehaviorSubject(initialState);
+    let select = {};
 
     // create all store methods
     const getState = () => state.getValue();
@@ -54,10 +55,18 @@ export const createStore = (reducers, middlewares, initialState) => {
         dispatch = dispatcher;
     }
 
+    // wrap selectors so the current state will be provided to each
+    if (selectors) {
+        for (let selector in selectors) {
+            select[selector] = selectors[selector]({getState});
+        }
+    }
+
     return {
         dispatch,
         getState,
         subscribe,
-        undo
+        undo,
+        select
     }
 };
