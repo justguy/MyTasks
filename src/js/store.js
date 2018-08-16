@@ -1,5 +1,6 @@
 // create the core middleware array
-import {MyBehaviorSubject} from "./rx/myBehaviorSubject";
+import {MyBehaviorSubject} from './rx/myBehaviorSubject';
+import * as utils from './utils';
 
 const validateAction = (action) => {
     if (!action || typeof action !== 'object' || Array.isArray(action)) {
@@ -57,9 +58,7 @@ export const createStore = (reducers, middlewares, initialState, selectors) => {
 
     // wrap selectors so the current state will be provided to each
     if (selectors) {
-        for (let selector in selectors) {
-            select[selector] = selectors[selector]({getState});
-        }
+        select = utils.objectMap(selectors, (s) => s({getState}));
     }
 
     return {

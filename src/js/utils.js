@@ -1,6 +1,21 @@
+/**
+ * omits a specific property from an object
+ * @param key
+ * @param object
+ * @returns {*}
+ */
 export const omit = (key, object) => {
     const {['' + key]: deletedKey, ...notKey} = object;
     return notKey;
+};
+
+/**
+ * Array.map() for object properties
+ * @param obj
+ * @param predicate
+ */
+export const objectMap = (obj, func) => {
+    return Object.assign({}, ...Object.keys(obj).map(prop => ({ [prop]: func(obj[prop]) })));
 };
 
 export const dataType = (data) => {
