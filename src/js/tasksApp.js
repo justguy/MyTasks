@@ -46,15 +46,18 @@ const render = () => {
         let todoList = $('<ul>');
         todoList.appendTo($('#appRx'));
 
-        store.subscribe((todos) => {
+        store.subscribe(() => {
             todoList.empty();
-            $.each(todos, function (id, todo) {
+            let tasks = store.select.tasks();
+            $.each(tasks, function (id, todo) {
                 todoList.append(todoTemplate(todo))
             })
         });
 
-        store.subscribe((todos) => {
-            todoCounter.text(Object.keys(todos).length);
+        store.subscribe(() => {
+            let total = store.select.taskCount();
+            let completed = store.select.taskCount(true);
+            todoCounter.text(`${completed}/${total}`);
         });
 
         todoList.on('click', 'span.toggle', function (e) {
