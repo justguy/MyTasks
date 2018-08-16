@@ -36,8 +36,10 @@ export const createStore = (reducers, middlewares, initialState, selectors) => {
     let dispatcher = (action) => {
         validateAction(action);
 
+        // reducers will run one by one to return the new state
         let stateValue = reducers.reduce((state, reducer) => reducer(state, action), state.getValue());
 
+        // update the store
         state.next(stateValue);
     };
 
@@ -50,6 +52,7 @@ export const createStore = (reducers, middlewares, initialState, selectors) => {
 
         // curry to chain the middlewares
         const middlewareChain = middlewares.map(middleware => middleware(middlewareAPI));
+
         // wrap the dispatcher with the reducers and replace the dispatch signature
         dispatch = middlewareChain.reduce((a, b) => (...args) => a(b(...args)))(dispatcher);
     } else {
