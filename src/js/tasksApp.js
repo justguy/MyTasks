@@ -9,7 +9,7 @@ import {tasksMiddleware} from "./middleware/feature/tasks";
 import {fetchTasks, updateTask, removeTask} from "./actions/tasks";
 import * as taskSelectors from './selectors/tasks';
 
-// not the order of middlewares
+// the order is important!
 const middlewares = [
     actionSplitterMiddleware, // first: split multiple actions
     tasksMiddleware, // second: handle feature actions
