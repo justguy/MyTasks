@@ -106,3 +106,11 @@ export const objectDifference = (obj1, obj2) => {
 
     return diff;
 };
+
+/**
+ * Random number generator (that's really not fool-proof)
+ * @returns {string}
+ */
+export const generateID = () => {
+    return Math.floor(Math.random() * 100000);
+};
