@@ -21,5 +21,5 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ## Acknowledgments
 
-Based on "Flux from Scratch" by Ryan Funduk
-https://ryanfunduk.com/articles/flux-from-scratch/
+- Based on "[Flux from Scratch](https://ryanfunduk.com/articles/flux-from-scratch/)" by Ryan Funduk
+- Redux architecture based on Nir Kaufman's "[Thinking in Redux](https://leanpub.com/thinking-in-Redux)".
