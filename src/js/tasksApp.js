@@ -21,14 +21,14 @@ const reducers = [
     tasksReducer
 ];
 
-const render = () => {
-    const store = createStore(reducers, middlewares, [], taskSelectors);
+const store = createStore(reducers, middlewares, [], taskSelectors);
 
+const render = () => {
     $(document).ready(function () {
         let todoForm = $('#appRx > form');
         todoForm.submit(function (e) {
             e.preventDefault();
-            store.dispath(updateTask({
+            store.dispatch(updateTask({
                 title: todoForm.find('input').val(),
                 completed: false
             }));

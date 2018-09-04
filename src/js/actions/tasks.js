@@ -1,5 +1,3 @@
-import {API_REQUEST} from "./api";
-
 export const TASKS = '[Tasks]';
 
 // action types
