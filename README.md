@@ -1,6 +1,7 @@
 # Flux Demo - To Do (using Observables similar to RxJS)
 
 A simple implementation of the flux pattern without external libraries for learning purposes.
+[See full article on Medium](https://medium.com/@adi.levinshtein/do-it-yourself-client-side-state-management-part-2-f1767b5bfc9b).
 
 ## Getting Started
 
