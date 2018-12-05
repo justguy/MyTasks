@@ -1,28 +1,26 @@
 export const GOOGLE_TASKS = '[Google Tasks]';
 
 export const FETCH_GOOGLE_TASKS = `${GOOGLE_TASKS} FETCH`;
-export const SET_GOOGLE_TASKS = `${GOOGLE_TASKS} SET`;
+export const SET_GOOGLE_TASK = `${GOOGLE_TASKS} SET`;
+export const UPDATE_GOOGLE_TASK = `${GOOGLE_TASKS} UPDATE`;
 
 export const fetchGoogleTasks = ({ query }) => ({
     type: FETCH_GOOGLE_TASKS,
     payload: query
 });
 
-export const setGoolgeTasks = ({ tasks }) => ({
-    type: SET_GOOGLE_TASKS,
+export const setGoogleTasks = ({ tasks }) => ({
+    type: SET_GOOGLE_TASK,
     payload: tasks,
     meta: {
         feature: GOOGLE_TASKS
     }
 });
 
-export const updateGoogleTask = ({ task }) => ({
+export const updateGoogleTask = ({ status }) => ({
     type: UPDATE_GOOGLE_TASK,
-    payload: task,
+    payload: status,
     meta: {
         feature: GOOGLE_TASKS
     }
 });
-
-// https://console.developers.google.com/apis/credentials?project=capable-argon-211813
-// https://developers.google.com/tasks/quickstart/js#step_1_turn_on_the

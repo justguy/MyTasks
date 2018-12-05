@@ -1,23 +1,15 @@
-// create the core middleware array
-
-import {actionSplitterMiddleware} from "./middleware/core/actionSplitter";
-import {apiMiddleware} from "./middleware/core/api";
-import {loggerMiddleware} from "./middleware/core/logger";
-import {googleAPIMiddleware} from "./middleware/feature/googleAPI";
-import {googleTasksMiddleware} from "./middleware/feature/googleTasks";
 import {MyBehaviorSubject} from './rx/myBehaviorSubject';
 import * as utils from './utils';
 
-const coreMiddleware = [
-    actionSplitterMiddleware,
-    apiMiddleware,
-    loggerMiddleware
-];
-
-const featureMiddleware = [
-    googleAPIMiddleware,
-    googleTasksMiddleware
-];
+export const combineReducers = (...reducers) => {
+    return (state = {}, action) => {
+        let nextState = Object.assign({}, state);
+        reducers.forEach((reducer) => {
+            nextState = reducer(nextState, action);
+        });
+        return nextState;
+    };
+};
 
 const validateAction = (action) => {
     if (!action || typeof action !== 'object' || Array.isArray(action)) {
@@ -54,7 +46,9 @@ export const createStore = (reducers, middlewares, initialState, selectors) => {
         validateAction(action);
 
         // reducers will run one by one to return the new state
-        let stateValue = reducers.reduce((state, reducer) => reducer(state, action), state.getValue());
+        let stateValue = reducers.reduce((state, reducer) => {
+            return reducer(state, action);
+        }, state.getValue());
 
         // update the store
         state.next(stateValue);

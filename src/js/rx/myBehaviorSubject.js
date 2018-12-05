@@ -47,7 +47,7 @@ class MyBehaviorSubject {
       * @returns {*}
      */
     getValue() {
-        return jQuery.extend(true, {}, this.lastValue);
+        return typeof this.lastValue === "undefined" ? undefined : jQuery.extend(true, {}, this.lastValue);
     }
 
     /**

@@ -1,27 +1,48 @@
 'use strict';
 
-import {createStore} from "./store";
-import {tasksReducer} from "./reducers/tasks.reducer";
+import {createStore, combineReducers} from "./store";
+import {tasksReducer} from "./reducers/tasksReducer";
 import {actionSplitterMiddleware} from "./middleware/core/actionSplitter";
 import {loggerMiddleware} from "./middleware/core/logger";
 import {apiMiddleware} from "./middleware/core/api";
 import {tasksMiddleware} from "./middleware/feature/tasks";
 import {fetchTasks, updateTask, removeTask} from "./actions/tasks";
 import * as taskSelectors from './selectors/tasks';
+import {googleAuthMiddleware} from "./middleware/feature/googleAuth";
+import {googleTasksMiddleware} from "./middleware/feature/googleTasks";
+import {googleAuthInit} from "./actions/googleAuth";
+import {googleAuthReducer} from "./reducers/googleAuthReducer";
 
-// the order is important!
-const middlewares = [
+// create the core middleware array
+const coreMiddleware = [
     actionSplitterMiddleware, // first: split multiple actions
     tasksMiddleware, // second: handle feature actions
     apiMiddleware, // third: handle API
     loggerMiddleware // log everything
 ];
 
-const reducers = [
-    tasksReducer
+const featureMiddleware = [
+    googleAuthMiddleware,
+    googleTasksMiddleware
 ];
 
-const store = createStore(reducers, middlewares, [], taskSelectors);
+// the order is important!
+const middlewares = [
+    ...coreMiddleware,
+    ...featureMiddleware
+];
+
+const reducers = [
+    combineReducers(
+        googleAuthReducer,
+        tasksReducer
+    )
+];
+
+const store = createStore(reducers, middlewares, {
+    googleAuthInit: false,
+    tasks: []
+}, taskSelectors);
 
 const render = () => {
     $(document).ready(function () {
@@ -77,7 +98,7 @@ const render = () => {
             }));
         });
 
-        store.dispatch(fetchTasks()); // seed data
+        store.dispatch(googleAuthInit());
     });
 
     function todoTemplate(todo) {
