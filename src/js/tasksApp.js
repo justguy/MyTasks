@@ -41,6 +41,7 @@ const reducers = [
 
 const store = createStore(reducers, middlewares, {
     googleAuthInit: false,
+    googleLoggedIn: false,
     tasks: []
 }, taskSelectors);
 

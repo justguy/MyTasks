@@ -1,6 +1,12 @@
 import {TASKS, FETCH_TASKS, setTasks} from "../../actions/tasks";
 import {API_ERROR, API_SUCCESS, apiRequest} from "../../actions/api";
-import {GOOGLE_AUTH_INIT, GOOGLE_AUTH_LOGOUT, googleLogin, googleAuthInitSuccess} from "../../actions/googleAuth";
+import {
+    GOOGLE_AUTH_INIT,
+    GOOGLE_AUTH_LOGOUT,
+    googleLogin,
+    googleAuthInitSuccess,
+    googleLogout
+} from "../../actions/googleAuth";
 
 export const googleAuthMiddleware = () => (next) => (action) => {
     next(action);
@@ -32,11 +38,10 @@ export const googleAuthMiddleware = () => (next) => (action) => {
 
         case GOOGLE_AUTH_LOGIN:
             window.gapi.auth2.getAuthInstance().signIn();
-            next(googleLogin());
             break;
 
         case GOOGLE_AUTH_LOGOUT:
-            next(googleLogout());
+            window.gapi.auth2.getAuthInstance().signOut();
             break;
 
         case `${TASKS} ${API_ERROR}`:
