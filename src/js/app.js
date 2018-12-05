@@ -1,6 +1,4 @@
 import { style } from '../style/style.css';
-import { SingleApp } from './single.js';
-import { MultiApp } from './multi.js';
+import { TasksApp } from './tasksApp.js';
 
-SingleApp.render();
-//MultiApp.render(6, false);
+TasksApp.render();

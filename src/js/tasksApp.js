@@ -1,33 +1,44 @@
 'use strict';
 
-import { Dispatcher } from './dispatcher';
-import { TodoStore } from './todoStoreRx';
-import { TodoActions } from './todoActions';
+import {createStore} from "./store";
+import {tasksReducer} from "./reducers/tasks.reducer";
+import {actionSplitterMiddleware} from "./middleware/core/actionSplitter";
+import {loggerMiddleware} from "./middleware/core/logger";
+import {apiMiddleware} from "./middleware/core/api";
+import {tasksMiddleware} from "./middleware/feature/tasks";
+import {fetchTasks, updateTask, removeTask} from "./actions/tasks";
+import * as taskSelectors from './selectors/tasks';
 
-function render() {
-    let dispatcher = new Dispatcher();
-    let todoStore = new TodoStore(dispatcher);
-    let todoActions = new TodoActions(dispatcher);
+// the order is important!
+const middlewares = [
+    actionSplitterMiddleware, // first: split multiple actions
+    tasksMiddleware, // second: handle feature actions
+    apiMiddleware, // third: handle API
+    loggerMiddleware // log everything
+];
 
-    dispatcher.register(function (payload) {
-        console.log("ACTION: " + JSON.stringify(payload))
-    });
+const reducers = [
+    tasksReducer
+];
 
+const store = createStore(reducers, middlewares, [], taskSelectors);
+
+const render = () => {
     $(document).ready(function () {
         let todoForm = $('#appRx > form');
         todoForm.submit(function (e) {
             e.preventDefault();
-            todoActions.createTodo({
+            store.dispatch(updateTask({
                 title: todoForm.find('input').val(),
                 completed: false
-            });
+            }));
             todoForm.get(0).reset();
 
             return false;
         });
 
         $('.btn-undo').click(() => {
-            todoStore.undo();
+            store.undo();
         });
 
         let todoCounter = $('.todo-counter');
@@ -35,30 +46,38 @@ function render() {
         let todoList = $('<ul>');
         todoList.appendTo($('#appRx'));
 
-        todoStore.subscribe((todos) => {
+        store.subscribe(() => {
             todoList.empty();
-            $.each(todos, function (id, todo) {
+            let tasks = store.select.tasks();
+            $.each(tasks, function (id, todo) {
                 todoList.append(todoTemplate(todo))
             })
         });
 
-        todoStore.subscribe((todos) => {
-            todoCounter.text(Object.keys(todos).length);
+        store.subscribe(() => {
+            let total = store.select.taskCount();
+            let completed = store.select.taskCount(true);
+            todoCounter.text(`${completed}/${total}`);
         });
 
         todoList.on('click', 'span.toggle', function (e) {
             let id = parseInt($(e.target).parents('li').attr('rel'), 10);
-            let todo = todoStore.getTodo(id);
-            todoActions.updateTodo(id, {completed: !todo.completed})
+            let task = store.select.task(id);
+            store.dispatch(updateTask({
+                id,
+                completed: !task.completed
+            }));
         });
 
         todoList.on('click', 'a.remove', function (e) {
             e.preventDefault();
             let id = parseInt($(e.target).parents('li').attr('rel'), 10);
-            todoActions.removeTodo(id)
+            store.dispatch(removeTask({
+                id
+            }));
         });
 
-        todoActions.listTodos(); // seed data
+        store.dispatch(fetchTasks()); // seed data
     });
 
     function todoTemplate(todo) {
@@ -80,10 +99,8 @@ function render() {
         //console.log("GENERATED HTML", html)
         return html
     }
-}
-
-const SingleApp = {
-    render: render
 };
 
-export { SingleApp };
+export const TasksApp = {
+    render
+};

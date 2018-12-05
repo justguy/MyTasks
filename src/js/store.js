@@ -1,8 +1,12 @@
 // create the core middleware array
+
 import {actionSplitterMiddleware} from "./middleware/core/actionSplitter";
 import {apiMiddleware} from "./middleware/core/api";
 import {loggerMiddleware} from "./middleware/core/logger";
-import {MyBehaviorSubject} from "./rx/myBehaviorSubject";
+import {googleAPIMiddleware} from "./middleware/feature/googleAPI";
+import {googleTasksMiddleware} from "./middleware/feature/googleTasks";
+import {MyBehaviorSubject} from './rx/myBehaviorSubject';
+import * as utils from './utils';
 
 const coreMiddleware = [
     actionSplitterMiddleware,
@@ -11,7 +15,8 @@ const coreMiddleware = [
 ];
 
 const featureMiddleware = [
-
+    googleAPIMiddleware,
+    googleTasksMiddleware
 ];
 
 const validateAction = (action) => {
@@ -30,21 +35,57 @@ const validateReducers = (reducers) => {
     }
 };
 
-const createStore = (reducers, initialState) => {
+export const createStore = (reducers, middlewares, initialState, selectors) => {
+    // if the reducers are invalid, stop now
     validateReducers(reducers);
 
+    // create the state
     let state = new MyBehaviorSubject(initialState);
+    let select = {};
+
+    // create all store methods
+    const getState = () => state.getValue();
+    const subscribe = (observer) => state.subscribe(observer);
+    const undo = () => state.undo();
+    let dispatch = null;
+
+    // set the default dispatcher without middleware
+    let dispatcher = (action) => {
+        validateAction(action);
+
+        // reducers will run one by one to return the new state
+        let stateValue = reducers.reduce((state, reducer) => reducer(state, action), state.getValue());
+
+        // update the store
+        state.next(stateValue);
+    };
+
+    // if middlewares were provided, wrap the dispatch
+    if (middlewares && middlewares.length) {
+        const middlewareAPI = {
+            getState,
+            dispatch: (...args) => dispatch(...args)
+        };
+
+        // curry to chain the middlewares
+        const middlewareChain = middlewares.map(middleware => middleware(middlewareAPI));
+
+        // wrap the dispatcher with the reducers and replace the dispatch signature
+        dispatch = middlewareChain.reduce((a, b) => (...args) => a(b(...args)))(dispatcher);
+    } else {
+        dispatch = dispatcher;
+    }
+
+    // wrap selectors so the current state will be provided to each
+    if (selectors) {
+        select = utils.objectMap(selectors, (s) => s({getState}));
+    }
 
     return {
-        dispatch: (action) => {
-            validateAction(action);
-
-            let newState = reducers.reduce();
-
-            state.next(newState);
-        },
-        getState: () => state.getValue(),
-        subscribe: (observer) = state.subscribe,
-        undo: () => state.undo
+        dispatch,
+        getState,
+        subscribe,
+        undo,
+        select
     }
 };
